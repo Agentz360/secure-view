@@ -1,3 +1,49 @@
+## 6.41.0 (2026-04-01)
+
+### Bug fixes
+
+Fix an issue where `EditorView.posAtCoords` could incorrectly return a position near a higher element on the line, in mixed-font-size lines.
+
+Expand the workaround for the Webkit bug that causes nonexistent selections to stay visible to be active on non-Safari Webkit browsers.
+
+### New features
+
+The new `EditorView.cursorScrollMargin` facet can now be used to configure the extra space used when scrolling the cursor into view.
+
+## 6.40.0 (2026-03-12)
+
+### Bug fixes
+
+Fix a bug that caused Shift-Enter/Backspace/Delete on iOS to lose the shift modifier when delivered to key event handlers.
+
+Fix an issue where `EditorView.moveVertically` could move to the wrong place in wrapped lines with a large line height.
+
+Make sure the selection head associativity is properly set for mouse selections made with shift held down.
+
+### New features
+
+`WidgetType.updateDOM` is now called with the previous widget value as third argument.
+
+## 6.39.17 (2026-03-10)
+
+### Bug fixes
+
+Improve touch tap-selection on line wrapping boundaries.
+
+Make `drawSelection` draw our own selection handles on iOS.
+
+Fix an issue where `posAtCoords`, when querying line wrapping points, got confused by extra empty client rectangles produced by Safari.
+
+## 6.39.16 (2026-03-02)
+
+### Bug fixes
+
+Perform scroll stabilization on the document or wrapping scrollable elements, when the user scrolls the editor.
+
+Fix an issue where changing decorations right before a composition could end up corrupting the visible DOM.
+
+Fix an issue where some types of text input over a selection would be read as happening in wrong position.
+
 ## 6.39.15 (2026-02-20)
 
 ### Bug fixes

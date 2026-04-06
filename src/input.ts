@@ -13,6 +13,8 @@ export class InputState {
   lastKeyCode: number = 0
   lastKeyTime: number = 0
   lastTouchTime = 0
+  lastTouchX = 0
+  lastTouchY = 0
   lastFocusTime = 0
   lastScrollTop = 0
   lastScrollLeft = 0
@@ -145,9 +147,9 @@ export class InputState {
     // applyDOMChange, notify key handlers of it and reset to
     // the state they produce.
     let pending
-    if (browser.ios && !(event as any).synthetic && !event.altKey && !event.metaKey &&
+    if (browser.ios && !(event as any).synthetic && !event.altKey && !event.metaKey && !event.shiftKey &&
         ((pending = PendingKeys.find(key => key.keyCode == event.keyCode)) && !event.ctrlKey ||
-         EmacsyPendingKeys.indexOf(event.key) > -1 && event.ctrlKey && !event.shiftKey)) {
+         EmacsyPendingKeys.indexOf(event.key) > -1 && event.ctrlKey)) {
       this.pendingIOSKey = pending || event
       setTimeout(() => this.flushIOSKey(), 250)
       return true
@@ -506,9 +508,14 @@ handlers.keydown = (view, event: KeyboardEvent) => {
   return false
 }
 
-observers.touchstart = (view, e) => {
-  view.inputState.lastTouchTime = Date.now()
-  view.inputState.setSelectionOrigin("select.pointer")
+observers.touchstart = (view, e: TouchEvent) => {
+  let iState = view.inputState, touch = e.targetTouches[0]
+  iState.lastTouchTime = Date.now()
+  if (touch) {
+    iState.lastTouchX = touch.clientX
+    iState.lastTouchY = touch.clientY
+  }
+  iState.setSelectionOrigin("select.pointer")
 }
 
 observers.touchmove = view => {
@@ -584,10 +591,10 @@ function basicMouseSelection(view: EditorView, event: MouseEvent) {
       if (start.pos != cur.pos && !extend) {
         let startRange = rangeForClick(view, start.pos, start.assoc, type)
         let from = Math.min(startRange.from, range.from), to = Math.max(startRange.to, range.to)
-        range = from < range.from ? EditorSelection.range(from, to) : EditorSelection.range(to, from)
+        range = from < range.from ? EditorSelection.range(from, to, range.assoc) : EditorSelection.range(to, from, range.assoc)
       }
       if (extend)
-        return startSel.replaceRange(startSel.main.extend(range.from, range.to))
+        return startSel.replaceRange(startSel.main.extend(range.from, range.to, range.assoc))
       else if (multiple && type == 1 && startSel.ranges.length > 1 && (removed = removeRangeAround(startSel, cur.pos)))
         return removed
       else if (multiple)
